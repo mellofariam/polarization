@@ -1,7 +1,10 @@
+import os
 import sys
-import numpy as np
 
+import numpy as np
 from OpenMiChroM.ChromDynamics import MiChroM
+
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 
 output_folder = sys.argv[1]
 platform = sys.argv[2] if len(sys.argv) > 2 else "CUDA"
@@ -9,13 +12,14 @@ platform = sys.argv[2] if len(sys.argv) > 2 else "CUDA"
 nucleus = MiChroM(name="chr1", temperature=1.0, timeStep=0.01)
 nucleus.setup(platform=platform)
 
+
 # Output folder:
 nucleus.saveFolder(output_folder)
 
 # Loading individual chromosomes:
 chromosomes = nucleus.initStructure(
     mode="spring",
-    ChromSeq="../1_inputs/chr1_subcompartments.txt",
+    ChromSeq=os.path.join(SCRIPT_DIR, "../1_inputs/chr1_subcompartments.txt"),
 )
 
 # Loading chromosomes in the simulation context
@@ -32,7 +36,7 @@ nucleus.addSelfAvoidance()
 nucleus.addCustomTypes(
     mu=3.22,
     rc=1.78,
-    TypesTable="../1_inputs/ff_compartments-and-nb.csv",
+    TypesTable=os.path.join(SCRIPT_DIR, "../1_inputs/ff_compartments-and-nb.csv"),
 )
 nucleus.addIdealChromosome(mu=3.22, rc=1.78, dinit=3, dend=500)
 
