@@ -292,3 +292,49 @@ def add_nuclear_bodies(
     positions = np.concatenate(positions, axis=0)
 
     return positions, masses
+
+
+def calc_half_angle(
+    density: float,
+    nucleus_radius: float,
+    nucleolus_radius: float,
+    num_chromatin_beads: int,
+    bead_radius: float = 0.5,
+):
+    """
+    Calculates the half-opening angle of the conic collapse in radians.
+
+    Args:
+        density (float): Density of the chromatin in the conic region.
+        nucleus_radius (float): Radius of the nucleus.
+        nucleolus_radius (float): Radius of the nucleolus.
+        num_chromatin_beads (int): Number of chromatin beads.
+        bead_radius (float): Radius of the chromatin beads.
+    Returns: float
+        Half-opening angle of the conic collapse in radians.
+    """
+    # 1. Total volume of all beads
+    v_total_beads = num_chromatin_beads * (4 / 3) * np.pi * (bead_radius**3)
+
+    # 2. Volume needed to satisfy the density requirement
+    v_region_required = v_total_beads / density
+
+    # 3. Geometric factor for the spherical shell: (2/3) * pi * (R^3 - r^3)
+    shell_factor = (
+        (2 / 3)
+        * np.pi
+        * (np.power(nucleus_radius, 3) - np.power(nucleolus_radius, 3))
+    )
+
+    # 4. Solve for cos(alpha)
+    # V = shell_factor * (1 - cos_alpha)
+    one_minus_cos_alpha = v_region_required / shell_factor
+    cos_alpha = 1 - one_minus_cos_alpha
+
+    # Clip cos_alpha to [-1, 1] to avoid NaNs from floating point errors
+    cos_alpha = np.clip(cos_alpha, -1.0, 1.0)
+
+    # 5. Return alpha in radians
+    alpha_rad = np.arccos(cos_alpha)
+
+    return alpha_rad
