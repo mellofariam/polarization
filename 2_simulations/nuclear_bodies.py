@@ -12,6 +12,7 @@ Date: Oct 2025
 
 import numpy as np
 from scipy.spatial import distance
+from OpenMiChroM.ChromDynamics import MiChroM
 
 
 def _calc_rotation_matrix(vec1, vec2):
@@ -22,7 +23,7 @@ def _calc_rotation_matrix(vec1, vec2):
     Args:
         vec1 (np.array): A 3d "source" vector
         vec2 (np.array): A 3d "destination" vector
-    
+
     Returns:
         np.array: A transform matrix (3x3) which when applied to vec1, aligns it with vec2.
     """
@@ -43,7 +44,12 @@ def _calc_rotation_matrix(vec1, vec2):
     return rotation_matrix
 
 
-def fix_chromatin(chromatin, nucleus_radius, thresh=2.0):
+def fix_chromatin(
+    chromatin,
+    nucleus_radius,
+    translate=True,
+    thresh=2.0,
+):
     """
     Bring chromatin close to the lamina by aligning the furthest bead
     to the z axis and translating it close to the lamina.
@@ -51,7 +57,9 @@ def fix_chromatin(chromatin, nucleus_radius, thresh=2.0):
     Args:
         chromatin (np.array): Nx3 array of chromatin bead positions.
         nucleus_radius (float): Radius of the nucleus.
-        thresh (float): Minimum distance between chromatin bead and lamina.
+        translate (bool): Whether to translate chromatin close to the lamina.
+        thresh (float): Minimum distance between chromatin bead and lamina,
+            to be used when `translate` is `True`.
     Returns:
         chromatin (np.array): Nx3 array of transformed chromatin bead positions.
     """
@@ -73,9 +81,11 @@ def fix_chromatin(chromatin, nucleus_radius, thresh=2.0):
     rotated_chromatin = np.array(
         [rotation_matrix.dot(bead) for bead in chromatin]
     )
-    rotated_chromatin += np.array(
-        [0, 0, nucleus_radius - max_distance - thresh]
-    )
+
+    if translate:
+        rotated_chromatin += np.array(
+            [0, 0, nucleus_radius - max_distance - thresh]
+        )
 
     print("Chromatin positions fixed!", flush=True)
 
@@ -100,7 +110,7 @@ def position_nucleoli(
     """
 
     print("Positioning nucleolus in the nucleus...", flush=True)
- 
+
     zmin = np.min(chromatin, axis=0)[2]  # in z direction
 
     if nucleus_radius + zmin < thresh + 2 * nucleoli_radius + 1.0:
@@ -118,7 +128,7 @@ def position_nucleoli(
 def _random_point_in_nucleus(nucleus_radius, thresh=2.0):
     """
     Return a random 3D point uniformly distributed inside the nucleus.
-    
+
     Args:
         nucleus_radius (float): Radius of the nucleus.
         thresh (float): Minimum distance from the lamina.
@@ -183,14 +193,14 @@ def position_speckles(
             )
             > speckles_radius
             + nucleoli_radius
-            + 1.0  # 0.5 of speckle + 0.5 of chr bead
+            + 1.0  # 0.5 of speckle + 0.5 of nucleolus
         ):
             if i >= 1:
                 if np.min(
                     distance.cdist(
                         new_speckle, np.concatenate(positions, axis=0)
                     )
-                    > 2 * speckles_radius + 1.0, # 0.5 per speckle
+                    > 2 * speckles_radius + 1.0,  # 0.5 per speckle
                     axis=None,
                 ):
                     positions.append(new_speckle)
@@ -207,7 +217,11 @@ def position_speckles(
 
 
 def add_nuclear_bodies(
-    simulation, chromatin, speckles, nucleoli, mass=0
+    simulation: MiChroM,
+    chromatin: np.ndarray,
+    speckles: None | np.ndarray = None,
+    nucleoli: None | np.ndarray = None,
+    mass=0,
 ):
     """
     This function is to be used after MiChroM.initStructure. It adds
@@ -226,43 +240,55 @@ def add_nuclear_bodies(
     """
 
     # concatenating positions
-    positions = np.concatenate(
-        (chromatin, speckles, nucleoli), axis=0
-    )
 
-    # fixing chains
-    simulation.chains.append(
-        (
-            simulation.chains[-1][1] + 1,
-            simulation.chains[-1][1] + 1 + len(speckles) - 1,
-            0,
+    if speckles is None and nucleoli is None:
+        raise ValueError(
+            "At least one of the nuclear bodies must be provided!"
         )
-    )
-    simulation.chains.append(
-        (
-            simulation.chains[-1][1] + 1,
-            simulation.chains[-1][1] + 1 + len(nucleoli) - 1,
-            0,
+
+    positions = [chromatin]
+    masses = [1 for _ in range(len(chromatin))]
+
+    print("Adding nuclear bodies to the system...", flush=True)
+
+    if speckles is not None:
+        print(
+            f"\t- speckles: chain {len(simulation.chains)}",
+            flush=True,
         )
-    )
+        positions.append(speckles)
+        simulation.chains.append(
+            (
+                simulation.chains[-1][1] + 1,
+                simulation.chains[-1][1] + 1 + len(speckles) - 1,
+                0,
+            )
+        )
+        simulation.type_list_letter.extend(
+            ["SP" for _ in range(len(speckles))]
+        )
+        masses.extend([mass for _ in range(len(speckles))])
+        simulation.diff_types.update(["SP"])
 
-    # fixing genome annotations
-    simulation.type_list_letter.extend(
-        ["SP" for _ in range(len(speckles))]
-    )
-    simulation.type_list_letter.extend(
-        ["NC" for _ in range(len(nucleoli))]
-    )
+    if nucleoli is not None:
+        print(
+            f"\t- nucleoli: chain {len(simulation.chains)}",
+            flush=True,
+        )
+        positions.append(nucleoli)
+        simulation.chains.append(
+            (
+                simulation.chains[-1][1] + 1,
+                simulation.chains[-1][1] + 1 + len(nucleoli) - 1,
+                0,
+            )
+        )
+        simulation.type_list_letter.extend(
+            ["NC" for _ in range(len(nucleoli))]
+        )
+        masses.extend([mass for _ in range(len(nucleoli))])
+        simulation.diff_types.update(["NC"])
 
-    simulation.diff_types.update(["SP", "NC"])
-
-    # setting masses
-    masses = []
-    for _ in range(len(chromatin)):
-        masses.append(1)
-    for _ in range(len(speckles)):
-        masses.append(mass)
-    for _ in range(len(nucleoli)):
-        masses.append(mass)
+    positions = np.concatenate(positions, axis=0)
 
     return positions, masses
