@@ -27,11 +27,13 @@ OUTPUT_FOLDER = os.path.join(output_base, condition, str(replicaID))
 os.makedirs(OUTPUT_FOLDER, exist_ok=True)
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-TYPES_TABLE = os.path.join(SCRIPT_DIR, "../1_inputs/ff_compartments-and-nb.csv")
+TYPES_TABLE = os.path.join(
+    SCRIPT_DIR, "../1_inputs/ff_compartments-and-nb.csv"
+)
 
 ## Defining parameters
-NUCLEUS_RADIUS = 28
-NUCLEOLI_RADIUS = 16.4
+NUCLEUS_RADIUS = 32.5
+NUCLEOLI_RADIUS = (NUCLEUS_RADIUS) / 5 ** (1 / 3)
 
 ###
 
@@ -169,7 +171,7 @@ print("\tMoving nucleolus...", flush=True)
 
 for i in range(100):
     nucleus.run(
-        nsteps=5 * 10**0,
+        nsteps=5 * 10**3,
         report=True,
         interval=10**4,
         totalSteps=3_000 * 10**3,
