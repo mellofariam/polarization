@@ -29,8 +29,8 @@ TYPES_TABLE = os.path.join(
 )
 
 ## Defining parameters
-NUCLEUS_RADIUS = 28
-NUCLEOLI_RADIUS = 16.4
+NUCLEUS_RADIUS = 32.5
+NUCLEOLI_RADIUS = (NUCLEUS_RADIUS) / 5 ** (1 / 3)
 SPECKLES_RADIUS = 1.5
 SPECKLES_NUMBER = 40
 CHROMATIN_DENSITY = 0.30
@@ -49,8 +49,8 @@ chromosomes = nucleus.initStructure(
     CoordFiles=[
         os.path.join(
             input_base,
-            str(replicaID),
             condition,
+            str(replicaID),
             "initial-state_0.pdb",
         )
     ],
