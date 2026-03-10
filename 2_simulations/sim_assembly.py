@@ -157,7 +157,7 @@ nucleus.run(
     nsteps=500 * 10**3,
     report=True,
     interval=10**4,
-    totalSteps=3_000 * 10**3,
+    totalSteps=3_500 * 10**3,
 )
 print("\tDone!", flush=True)
 
@@ -174,7 +174,7 @@ for i in range(100):
         nsteps=5 * 10**3,
         report=True,
         interval=10**4,
-        totalSteps=3_000 * 10**3,
+        totalSteps=3_500 * 10**3,
     )
     current_positions = nucleus.getPositions()
     print(current_positions[-1], flush=True)
@@ -200,7 +200,7 @@ for T in np.linspace(1.1, 2.0, num=100):
         nsteps=10 * 10**3,
         report=True,
         interval=10**4,
-        totalSteps=3_000 * 10**3,
+        totalSteps=3_500 * 10**3,
     )
 
 ## Running the annealing to return to T = 1.0
@@ -211,7 +211,7 @@ for T in np.linspace(1.99, 1.00, num=100):
         nsteps=10 * 10**3,
         report=True,
         interval=10**4,
-        totalSteps=3_000 * 10**3,
+        totalSteps=3_500 * 10**3,
     )
 
 print("\tDone!", flush=True)
@@ -221,7 +221,7 @@ nucleus.run(
     nsteps=500 * 10**3,
     report=True,
     interval=10**4,
-    totalSteps=3_000 * 10**3,
+    totalSteps=3_500 * 10**3,
 )
 print("\tDone!", flush=True)
 
