@@ -36,7 +36,7 @@ if condition not in [
     )
 
 print(
-    f"Computing the MSD for chromosome 1",
+    "Computing the MSD for chromosome 1",
     flush=True,
 )
 print(f"\tcondititon: {condition}", flush=True)
@@ -47,7 +47,7 @@ filepath = os.path.join(
     TRAJ_FOLDER,
     condition,
     str(replica),
-    f"nucleus_0.cndb",
+    "nucleus_0.cndb",
 )
 
 traj = cndbTools()
