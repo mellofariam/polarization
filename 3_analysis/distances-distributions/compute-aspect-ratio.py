@@ -1,28 +1,7 @@
-import collections
-import itertools
-import os
-import pickle
 import sys
-import time
-from itertools import combinations_with_replacement
 
-import freud
-import h5py
-import matplotlib as mpl
-import matplotlib.pyplot as plt
-import mdtraj as md
 import numpy as np
-import pandas
-import seaborn as sns
-from matplotlib import gridspec
 from OpenMiChroM.CndbTools import cndbTools as ctools
-from mpl_toolkits.axes_grid1 import make_axes_locatable
-
-import chroma
-
-plt.style.use("chroma.paper")
-
-import numpy as np
 
 condition = sys.argv[1]
 
