@@ -1,13 +1,14 @@
-import os
-import sys
+"""
+Concatenate the MSD for all beads in each compartment across all replicas, 
+and save the average MSD per compartment. One single .h5 is generated with
+the average MSD per compartment for each condition.
+"""
 
-import h5py
-import freud
-import numpy as np
-from OpenMiChroM.CndbTools import cndbTools
+import os
 from functools import reduce
 
-from chroma import structure
+import h5py
+import numpy as np
 
 
 def read_sequence(filename):
@@ -17,107 +18,79 @@ def read_sequence(filename):
     return sequence[:, 1].astype(str)
 
 
+OUTPUT_FOLDER = "/scratch/mm146/Polarization/3_IMR-90_hg38_fields-nb/4_analysis/msd/data"
+NUM_REPLICAS = 32
+
 conditions = [
-    # "control",
     "complete",
-    # "lamina",
-    # "nucleolus",
-    # "isolation",
-    # "nuclear-bodies",
+    "nucleolus",
+    "lamina",
+    "control",
 ]
 
-chr_sequence = {
-    10: read_sequence(
-        "/scratch/mm146/Polarization/3_IMR-90_hg38_fields-nb/1_inputs/chr10_IMR90_hg38.subcmpt"
-    ),
-    11: read_sequence(
-        "/scratch/mm146/Polarization/3_IMR-90_hg38_fields-nb/1_inputs/chr11_IMR90_hg38.subcmpt"
-    ),
-}
+chr_sequence = read_sequence(
+    "../../1_inputs/chr1_subcompartments.txt"
+)
 
 compartment_indices = {}
-for chromosome in [10, 11]:
-    compartment_indices[chromosome] = {}
-    for subcompartment in ["A1", "A2", "B1", "B2", "B3", "NA"]:
-        compartment_indices[chromosome][subcompartment] = np.where(
-            chr_sequence[chromosome] == subcompartment
-        )[0]
+for subcompartment in ["A1", "A2", "B1", "B2", "B3", "NA"]:
+    compartment_indices[subcompartment] = np.where(
+        chr_sequence == subcompartment
+    )[0]
 
-    compartment_indices[chromosome]["A"] = reduce(
-        np.union1d,
-        (
-            compartment_indices[chromosome]["A1"],
-            compartment_indices[chromosome]["A2"],
-        ),
-    )
-    compartment_indices[chromosome]["B"] = reduce(
-        np.union1d,
-        (
-            compartment_indices[chromosome]["B1"],
-            compartment_indices[chromosome]["B2"],
-            compartment_indices[chromosome]["B3"],
-        ),
-    )
+compartment_indices["A"] = reduce(
+    np.union1d,
+    (
+        compartment_indices["A1"],
+        compartment_indices["A2"],
+    ),
+)
+compartment_indices["B"] = reduce(
+    np.union1d,
+    (
+        compartment_indices["B1"],
+        compartment_indices["B2"],
+        compartment_indices["B3"],
+    ),
+)
 
-with h5py.File("data/msd-average-per-compartment.h5", "w") as f_out:
-    for num_chr in [
-        "one",
-        # "two",
-    ]:
-        f_out.create_group(num_chr)
-        if num_chr == "one":
-            FOLDER_PATH = "/scratch/mm146/Polarization/3_IMR-90_hg38_fields-nb/3_single-chr-simulation"
-            chromosomes = [10]
-        elif num_chr == "two":
-            FOLDER_PATH = "/scratch/mm146/Polarization/3_IMR-90_hg38_fields-nb/3_single-chr-simulation"
-            chromosomes = [10, 11]
-        else:
-            raise ValueError("Invalid number of chromosomes!")
+with h5py.File(
+    os.path.join(OUTPUT_FOLDER, "msd-average-per-compartment.h5"), "w"
+) as f_out:
+    for condition in conditions:
+        condition_group = f_out.create_group(condition)
 
-        for condition in conditions:
-            f_out[num_chr].create_group(condition)
-            for chromosome in chromosomes:
-                f_out[num_chr][condition].create_group(
-                    f"chr{chromosome}"
-                )
-                print(
-                    f"Concatenating the MSD for chromosome: {chromosome}",
-                    flush=True,
-                )
-                print(
-                    f"\tnumber of chromosomes: {num_chr}", flush=True
-                )
-                print(f"\tcondititon: {condition}", flush=True)
-                print("", flush=True)
+        print(
+            f"Concatenating the MSD for condition: {condition}",
+            flush=True,
+        )
 
-                msd_all_replicas = []
-                for replica in range(1, 31):
-                    print(
-                        "\tProcessing replica:", replica, flush=True
-                    )
-                    with h5py.File(
-                        f"data/{num_chr}/{condition}/msd-all-beads-chr{chromosome}-replica-{replica}.h5",
-                        "r",
-                    ) as f:
-                        msd_all_replicas.append(f["msd-per-bead"][()])
+        msd_all_replicas = []
+        for replica in range(1, NUM_REPLICAS + 1):
+            print("\tProcessing replica:", replica, flush=True)
+            with h5py.File(
+                os.path.join(
+                    OUTPUT_FOLDER,
+                    condition,
+                    f"msd-all-beads-replica{replica}.h5",
+                ),
+                "r",
+            ) as f:
+                msd_all_replicas.append(f["msd-per-bead"][()])
 
-                msd_all_replicas = np.array(msd_all_replicas)
+        msd_all_replicas = np.array(msd_all_replicas)
 
-                for label in compartment_indices[chromosome].keys():
-                    indices = compartment_indices[chromosome][label]
-                    msd_compartment = (
-                        msd_all_replicas[:, :, indices]
-                        .transpose(1, 0, 2)
-                        .reshape(10000, -1)
-                        .mean(axis=1)
-                    )
+        for label, indices in compartment_indices.items():
+            msd_compartment = (
+                msd_all_replicas[:, :, indices]
+                .transpose(1, 0, 2)
+                .reshape(10000, -1)
+                .mean(axis=1)
+            )
 
-                    f_out[num_chr][condition][
-                        f"chr{chromosome}"
-                    ].create_dataset(
-                        label,
-                        data=msd_compartment,
-                    )
-
+            condition_group.create_dataset(
+                label,
+                data=msd_compartment,
+            )
 
 print("Done!", flush=True)
