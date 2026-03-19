@@ -9,3 +9,7 @@ done
 for condition in complete nucleolus lamina control; do
     sbatch --export=condition=$condition sub_distance-histogram.sh
 done
+
+for condition in complete nucleolus lamina control; do
+    sbatch --export=condition=$condition sub_focused-pairwise-distance-distribution.sh
+done
