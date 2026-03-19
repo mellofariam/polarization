@@ -24,8 +24,8 @@ if condition not in [
     "nucleolus",
 ]:
     raise ValueError(
-        "Invalid condition. Options are: 'control', 'complete', 'lamina', "
-        "'nucleolus', 'isolation', and 'nuclear-bodies'."
+        "Invalid condition. Options are: 'control', 'complete', "
+        "'lamina', and 'nucleolus'."
     )
 
 print(
@@ -48,32 +48,34 @@ traj.load(fileName=filepath)
 
 positions = traj.xyz(frames=range(0, 10_000, 1))
 
-n_frames = positions.shape[0]
+num_frames = positions.shape[0]
+num_beads = positions.shape[1]
 
-chr_sequence = traj.ChromSeq
-chr_sequence = np.array(
-    list(map(lambda x: x.decode("utf-8"), chr_sequence))
-)
+chr_sequence = np.array([x.decode("utf-8") for x in traj.ChromSeq])
+chr_sequence_compartment = np.array([x[0] for x in chr_sequence])
+
+i_idx, j_idx = np.triu_indices(num_beads, k=3)
+
+is_A = chr_sequence_compartment == "A"
+is_B = chr_sequence_compartment == "B"
+is_N = chr_sequence_compartment == "N"
+
+
+def get_pairs(m1, m2):
+    "Logic: (m1[i] AND m2[j]) OR (m1[j] AND m2[i])"
+
+    mask = (m1[i_idx] & m2[j_idx]) | (m1[j_idx] & m2[i_idx])
+    return np.column_stack((i_idx[mask], j_idx[mask]))
+
 
 indices = {
-    "AA": [],
-    "AB": [],
-    "BB": [],
-    "AN": [],
-    "BN": [],
-    "NN": [],
+    "AA": get_pairs(is_A, is_A),
+    "AB": get_pairs(is_A, is_B),
+    "BB": get_pairs(is_B, is_B),
+    "AN": get_pairs(is_A, is_N),
+    "BN": get_pairs(is_B, is_N),
+    "NN": get_pairs(is_N, is_N),
 }
-
-for i, annot1 in enumerate(chr_sequence):
-    for j, annot2 in enumerate(chr_sequence):
-        if abs(i - j) > 2:
-            tag = f"{annot1[0]}{annot2[0]}"
-
-            if tag in indices:
-                indices[tag].append((i, j))
-
-for tag in indices:
-    indices[tag] = np.array(indices[tag])
 
 # load types parameters
 alpha_matrix = pandas.read_csv("../../1_inputs/ff_compartments-and-nb.csv")
@@ -179,9 +181,9 @@ if compute_lamina:
     energies["lamina"] = np.sum(energy_lamina, axis=1)
 
 if "nucleolus" not in energies:
-    energies["nucleolus"] = np.zeros(n_frames)
+    energies["nucleolus"] = np.zeros(num_frames)
 if "lamina" not in energies:
-    energies["lamina"] = np.zeros(n_frames)
+    energies["lamina"] = np.zeros(num_frames)
 
 print("Saving energies...", flush=True)
 
