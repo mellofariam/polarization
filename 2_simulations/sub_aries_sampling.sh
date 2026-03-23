@@ -19,8 +19,8 @@ condition=$1
 i=${SLURM_ARRAY_TASK_ID}
 
 SCRIPT_DIR="/home/mm146/Polarization/polarization/2_simulations/sim_sampling.py"
-OUTPUT_BASE="/work/cms16/mm146/Polarization/3_IMR-90_hg38_fields-nb/3_sampling"
-INPUT_BASE="/work/cms16/mm146/Polarization/3_IMR-90_hg38_fields-nb/2_assembly"
+OUTPUT_BASE="/work/cms16/mm146/Polarization/4_IMR-90_hg38_chr17/3_sampling"
+INPUT_BASE="/work/cms16/mm146/Polarization/4_IMR-90_hg38_chr17/2_assembly"
 
 mkdir -p $OUTPUT_BASE/$condition/output
 
