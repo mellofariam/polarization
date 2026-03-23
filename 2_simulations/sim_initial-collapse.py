@@ -7,9 +7,10 @@ from OpenMiChroM.ChromDynamics import MiChroM
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 
 output_folder = sys.argv[1]
-platform = sys.argv[2] if len(sys.argv) > 2 else "CUDA"
+chromosome = int(sys.argv[2])
+platform = sys.argv[3] if len(sys.argv) > 3 else "CUDA"
 
-nucleus = MiChroM(name="chr1", temperature=1.0, timeStep=0.01)
+nucleus = MiChroM(name=f"chr{chromosome}", temperature=1.0, timeStep=0.01)
 nucleus.setup(platform=platform)
 
 
@@ -19,7 +20,7 @@ nucleus.saveFolder(output_folder)
 # Loading individual chromosomes:
 chromosomes = nucleus.initStructure(
     mode="spring",
-    ChromSeq=os.path.join(SCRIPT_DIR, "../1_inputs/chr1_subcompartments.txt"),
+    ChromSeq=os.path.join(SCRIPT_DIR, f"../1_inputs/chr{chromosome}_subcompartments.txt"),
 )
 
 # Loading chromosomes in the simulation context
@@ -103,7 +104,7 @@ for i, condition in enumerate(conditions):
         )
 
     nucleus.saveStructure(
-        fileName=f"chr1_init_{condition}", mode="pdb"
+        fileName=f"chr{chromosome}_init_{condition}", mode="pdb"
     )
 
     if i < len(conditions) - 1:

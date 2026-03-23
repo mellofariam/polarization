@@ -18,10 +18,11 @@ from scipy.spatial import distance
 import nuclear_bodies as nb
 
 output_base = sys.argv[1]
-condition = sys.argv[2]
-replicaID = int(sys.argv[3])
-input_base = sys.argv[4]
-platform = sys.argv[5] if len(sys.argv) > 5 else "CUDA"
+chromosome = int(sys.argv[2])
+condition = sys.argv[3]
+replicaID = int(sys.argv[4])
+input_base = sys.argv[5]
+platform = sys.argv[6] if len(sys.argv) > 6 else "CUDA"
 
 OUTPUT_FOLDER = os.path.join(output_base, condition, str(replicaID))
 os.makedirs(OUTPUT_FOLDER, exist_ok=True)
@@ -50,7 +51,7 @@ chromosomes = nucleus.initStructure(
         os.path.join(
             input_base,
             str(replicaID),
-            f"chr1_init_{condition}.pdb",
+            f"chr{chromosome}_init_{condition}.pdb",
         )
     ],
 )
