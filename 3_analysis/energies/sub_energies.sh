@@ -9,9 +9,8 @@
 #SBATCH --mem=8GB
 #SBATCH --array=1-32
 
-module load Mamba/23.1.0-4
-source /opt/apps/software/Mamba/23.1.0-4/bin/activate
-conda activate "$HOME/work"
+source /home/mm146/.conda/envs/work/bin/activate
+conda activate work
 
 replica=${SLURM_ARRAY_TASK_ID}
 
