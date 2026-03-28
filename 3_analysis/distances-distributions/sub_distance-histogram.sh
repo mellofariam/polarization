@@ -16,8 +16,4 @@ which python
 
 replica=${SLURM_ARRAY_TASK_ID}
 
-python compute-distance-histogram.py \\
-    $condition \\
-    $replica \\
-    /scratch/mm146/Polarization/5_IMR-90_hg38_chr17/3_sampling \\
-    /scratch/mm146/Polarization/5_IMR-90_hg38_chr17/4_analysis/distances-distributions/data
+python compute-distance-histogram.py $condition $replica /scratch/mm146/Polarization/5_IMR-90_hg38_chr17/3_sampling /scratch/mm146/Polarization/5_IMR-90_hg38_chr17/4_analysis/distances-distributions/data
