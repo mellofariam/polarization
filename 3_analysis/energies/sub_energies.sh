@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #SBATCH -J energies
-#SBATCH -o /scratch/mm146/Polarization/3_IMR-90_hg38_fields-nb/4_analysis/output/job.energies.%j.out
+#SBATCH -o /scratch/mm146/Polarization/5_IMR-90_hg38_chr17/4_analysis/output/job.energies.%j.out
 #SBATCH -n 4
 #SBATCH -t 24:00:00
 #SBATCH --account=ctbp-onuchic
@@ -15,4 +15,4 @@ conda activate "$HOME/work"
 
 replica=${SLURM_ARRAY_TASK_ID}
 
-python compute-energies.py $condition $replica
+python compute-energies.py $condition $replica /scratch/mm146/Polarization/5_IMR-90_hg38_chr17/3_sampling /scratch/mm146/Polarization/5_IMR-90_hg38_chr17/4_analysis/energies/data
