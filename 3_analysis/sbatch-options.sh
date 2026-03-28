@@ -1,4 +1,8 @@
 for condition in control complete lamina nucleolus; do
+    sbatch --export=condition=$condition sub_distance-histogram.sh
+done
+
+for condition in control complete lamina nucleolus; do
     sbatch --export=condition=$condition sub_msd.sh
 done
 
