@@ -11,11 +11,8 @@ from OpenMiChroM.CndbTools import cndbTools
 
 condition = sys.argv[1]
 replica = int(sys.argv[2])
-
-TRAJ_FOLDER = (
-    "/scratch/mm146/Polarization/3_IMR-90_hg38_fields-nb/3_sampling"
-)
-OUTPUT_FOLDER = "/scratch/mm146/Polarization/3_IMR-90_hg38_fields-nb/4_analysis/polarization/data"
+traj_folder = sys.argv[3]
+output_folder = sys.argv[4]
 
 NUCLEUS_RADIUS = 32.5
 NUCLEOLI_RADIUS = (NUCLEUS_RADIUS) / 5 ** (1 / 3)
@@ -32,23 +29,23 @@ if condition not in [
     )
 
 print(
-    "Computing the polarization for chromosome 1",
+    "Computing the polarization",
     flush=True,
 )
 print(f"\tcondititon: {condition}", flush=True)
 print(f"\treplica: {replica}", flush=True)
 print("", flush=True)
 
-os.makedirs(os.path.join(OUTPUT_FOLDER, condition), exist_ok=True)
+os.makedirs(os.path.join(output_folder, condition), exist_ok=True)
 with h5py.File(
     os.path.join(
-        OUTPUT_FOLDER, condition, f"polarization-replica{replica}.h5"
+        output_folder, condition, f"polarization-replica{replica}.h5"
     ),
     "w",
 ) as saving_file:
 
     filepath = os.path.join(
-        TRAJ_FOLDER,
+        traj_folder,
         condition,
         str(replica),
         "nucleus_0.cndb",
