@@ -10,9 +10,8 @@ from chroma import structure, energy
 
 condition = sys.argv[1]
 replica = int(sys.argv[2])
-
-TRAJ_FOLDER = "/scratch/mm146/Polarization/3_IMR-90_hg38_fields-nb/3_sampling"
-OUTPUT_FOLDER = "/scratch/mm146/Polarization/3_IMR-90_hg38_fields-nb/4_analysis/energies/data"
+traj_folder = sys.argv[3]
+output_folder = sys.argv[4]
 
 NUCLEUS_RADIUS = 32.5
 NUCLEOLI_RADIUS = (NUCLEUS_RADIUS) / 5 ** (1 / 3)
@@ -29,7 +28,7 @@ if condition not in [
     )
 
 print(
-    f"Computing the distances distributions for chromosome 1",
+    "Computing the distances distributions",
     flush=True,
 )
 print(f"\tcondititon: {condition}", flush=True)
@@ -37,7 +36,7 @@ print(f"\treplica: {replica}", flush=True)
 print("", flush=True)
 
 filepath = os.path.join(
-    TRAJ_FOLDER,
+    traj_folder,
     condition,
     str(replica),
     "nucleus_0.cndb"
@@ -93,7 +92,7 @@ if condition in ["complete", "nucleolus"]:
     compute_nucleolus = True
 
     nucleolus_path = os.path.join(
-        TRAJ_FOLDER,
+        traj_folder,
         condition,
         str(replica),
         f"nucleus_1.cndb",
@@ -187,10 +186,10 @@ if "lamina" not in energies:
 
 print("Saving energies...", flush=True)
 
-os.makedirs(os.path.join(OUTPUT_FOLDER, condition), exist_ok=True)
+os.makedirs(os.path.join(output_folder, condition), exist_ok=True)
 
 with h5py.File(
-    os.path.join(OUTPUT_FOLDER, condition, f"contact-energies-replica{replica}.h5"),
+    os.path.join(output_folder, condition, f"contact-energies-replica{replica}.h5"),
     "w",
 ) as saving_file:
     for name, energy_values in energies.items():
