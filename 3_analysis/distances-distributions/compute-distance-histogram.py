@@ -39,7 +39,7 @@ if condition not in [
     )
 
 print(
-    "Computing the distances distributions for chromosome 1",
+    "Computing the distances distributions",
     flush=True,
 )
 print(f"\tcondititon: {condition}", flush=True)
