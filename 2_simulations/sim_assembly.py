@@ -233,6 +233,4 @@ print("Done!", flush=True)
 print("Forces in the end:", flush=True)
 nucleus.printForces()
 
-print("Simulation ended. Closing files...", flush=True)
-
-print("Files closed! All set!", flush=True)
+print("Simulation ended.", flush=True)
