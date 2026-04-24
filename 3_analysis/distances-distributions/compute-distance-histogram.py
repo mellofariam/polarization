@@ -20,11 +20,8 @@ import nuclear_bodies as nb
 
 condition = sys.argv[1]
 replica = int(sys.argv[2])
-
-TRAJ_FOLDER = (
-    "/scratch/mm146/Polarization/3_IMR-90_hg38_fields-nb/3_sampling"
-)
-OUTPUT_FOLDER = "/scratch/mm146/Polarization/3_IMR-90_hg38_fields-nb/4_analysis/distances-distributions/data"
+traj_folder = sys.argv[3]
+output_folder = sys.argv[4]
 
 NUCLEUS_RADIUS = 32.5
 NUCLEOLI_RADIUS = (NUCLEUS_RADIUS) / 5 ** (1 / 3)
@@ -42,7 +39,7 @@ if condition not in [
     )
 
 print(
-    "Computing the distances distributions for chromosome 1",
+    "Computing the distances distributions",
     flush=True,
 )
 print(f"\tcondititon: {condition}", flush=True)
@@ -50,7 +47,7 @@ print(f"\treplica: {replica}", flush=True)
 print("", flush=True)
 
 filepath = os.path.join(
-    TRAJ_FOLDER,
+    traj_folder,
     condition,
     str(replica),
     "nucleus_0.cndb",
@@ -170,10 +167,10 @@ for start_frame in range(0, num_frames, CHUNK_SIZE):
 mean_distance_matrix = sum_distance_matrix / total_frames
 mean_sq_distance_matrix = sum_sq_distance_matrix / total_frames
 
-os.makedirs(os.path.join(OUTPUT_FOLDER, condition), exist_ok=True)
+os.makedirs(os.path.join(output_folder, condition), exist_ok=True)
 with h5py.File(
     os.path.join(
-        OUTPUT_FOLDER,
+        output_folder,
         condition,
         f"distance-histograms-replica{replica}.h5",
     ),
@@ -196,7 +193,7 @@ with h5py.File(
 
 with h5py.File(
     os.path.join(
-        OUTPUT_FOLDER,
+        output_folder,
         condition,
         f"distance-matrix-replica{replica}.h5",
     ),
