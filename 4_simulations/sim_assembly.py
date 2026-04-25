@@ -1,5 +1,5 @@
 """
-This script positions the already collapsed chromosome in the nucleus. 
+This script positions the already collapsed chromosome in the nucleus.
 It creates the lamina and nucleolus as explicit beads in the simulation,
 and slowly repositions the nucleolus to the center of the nucleus,
 while keeping the chromatin confined inside the nucleus.
@@ -27,12 +27,14 @@ OUTPUT_FOLDER = os.path.join(output_base, condition, str(replicaID))
 os.makedirs(OUTPUT_FOLDER, exist_ok=True)
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-TYPES_TABLE = os.path.join(SCRIPT_DIR, "../1_inputs/ff_compartments-and-nb.csv")
+TYPES_TABLE = os.path.join(
+    SCRIPT_DIR, "../1_inputs/ff_nucleus-compartment-level.csv"
+)
 
 ## Defining parameters
 NUCLEUS_RADIUS = 32.5
 NUCLEOLI_RADIUS = NUCLEUS_RADIUS / 5 ** (1 / 3)
-NUCLEAR_BODY_SPACING = 1.5
+NUCLEAR_BODY_SPACING = 3.0
 CHROMATIN_DENSITY = 0.30
 
 ###
@@ -56,7 +58,9 @@ chromosomes = nucleus.initStructure(
 )
 num_beads = len(chromosomes)
 
-chromosomes = nb.fix_chromatin(chromosomes, nucleus_radius=NUCLEUS_RADIUS, thresh=1.15)
+chromosomes = nb.fix_chromatin(
+    chromosomes, nucleus_radius=NUCLEUS_RADIUS, thresh=1.5
+)
 print("zmax:", np.max(chromosomes[:, 2]))
 print("zmin:", np.min(chromosomes[:, 2]))
 
@@ -88,7 +92,7 @@ nucleoli, nucleoli_center = nb.fix_nucleoli(
     nucleoli=nucleoli,
     nucleoli_radius=NUCLEOLI_RADIUS,
     nucleus_radius=NUCLEUS_RADIUS,
-    thresh=1.15,
+    thresh=1.5,
 )
 
 chromatin_chains = list(range(len(nucleus.chains)))
@@ -173,12 +177,16 @@ for i in range(100):
         totalSteps=3_500 * 10**3,
     )
     current_positions = nucleus.getPositions()
-    current_positions[nucleoli_chain_info[0] : nucleoli_chain_info[1] + 1, 2] += dz
+    current_positions[
+        nucleoli_chain_info[0] : nucleoli_chain_info[1] + 1, 2
+    ] += dz
 
     if i < 99:
         current_nucleoli_z_center += dz
         nucleus.context.setPositions(current_positions)
-        nucleus.context.setGlobalParameter("z_nucleoli", current_nucleoli_z_center)
+        nucleus.context.setParameter(
+            "z_nucleoli", current_nucleoli_z_center
+        )
 
 
 nucleus.saveStructure(fileName="nucleolus-moved", mode="pdb")
