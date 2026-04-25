@@ -26,12 +26,14 @@ OUTPUT_FOLDER = os.path.join(output_base, condition, str(replicaID))
 os.makedirs(OUTPUT_FOLDER, exist_ok=True)
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-TYPES_TABLE = os.path.join(SCRIPT_DIR, "../1_inputs/ff_compartments-and-nb.csv")
+TYPES_TABLE = os.path.join(
+    SCRIPT_DIR, "../1_inputs/ff_nucleus-compartment-level.csv"
+)
 
 ## Defining parameters
 NUCLEUS_RADIUS = 32.5
 NUCLEOLI_RADIUS = NUCLEUS_RADIUS / 5 ** (1 / 3)
-NUCLEAR_BODY_SPACING = 1.5
+NUCLEAR_BODY_SPACING = 3.0
 CHROMATIN_DENSITY = 0.30
 
 ###
@@ -62,8 +64,19 @@ chromosomes = nb.fix_chromatin(
 print("zmax:", np.max(chromosomes[:, 2]))
 print("zmin:", np.min(chromosomes[:, 2]))
 
+half_angle_conic_confinement = nb.calc_half_angle(
+    density=CHROMATIN_DENSITY,
+    nucleus_radius=NUCLEUS_RADIUS,
+    nucleolus_radius=NUCLEOLI_RADIUS,
+    num_chromatin_beads=num_beads,
+)
+
 include_lamina = condition in ["complete", "lamina"]
-include_nucleoli = condition in ["complete", "nuclear-bodies", "nucleolus"]
+include_nucleoli = condition in [
+    "complete",
+    "nuclear-bodies",
+    "nucleolus",
+]
 
 lamina = None
 if include_lamina:
@@ -71,6 +84,13 @@ if include_lamina:
         radius=NUCLEUS_RADIUS,
         target_spacing=NUCLEAR_BODY_SPACING,
     )
+
+    lamina = nb.filter_points_in_cone(
+        lamina,
+        half_angle_conic_confinement,
+        0.10 * half_angle_conic_confinement,
+    )
+
     print(
         "Lamina created with",
         len(lamina),
@@ -87,6 +107,13 @@ if include_nucleoli:
         target_spacing=NUCLEAR_BODY_SPACING,
     )
     nucleoli -= np.mean(nucleoli, axis=0)
+
+    nucleoli = nb.filter_points_in_cone(
+        nucleoli,
+        half_angle_conic_confinement,
+        0.10 * half_angle_conic_confinement,
+    )
+
     print(
         "Nucleolus created with",
         len(nucleoli),
@@ -134,12 +161,6 @@ nucleus.addMultiChainIC(
 # Add confinement
 nucleus.addSphericalConfinementTanh(radius=NUCLEUS_RADIUS, Ecut=20)
 
-half_angle_conic_confinement = nb.calc_half_angle(
-    density=CHROMATIN_DENSITY,
-    nucleus_radius=NUCLEUS_RADIUS,
-    nucleolus_radius=NUCLEOLI_RADIUS,
-    num_chromatin_beads=num_beads,
-)
 
 nucleus.addConicConfinement(
     k=5e-3, halfOpeningAngle=half_angle_conic_confinement
@@ -218,5 +239,4 @@ nucleus.saveStructure(fileName="last-frame", mode="pdb")
 print("Forces in the end:", flush=True)
 nucleus.printForces()
 
-print("Simulation ended. Closing files...", flush=True)
 print("Files closed! All set!", flush=True)
