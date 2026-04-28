@@ -33,7 +33,7 @@ TYPES_TABLE = os.path.join(
 ## Defining parameters
 NUCLEUS_RADIUS = 32.5
 NUCLEOLI_RADIUS = NUCLEUS_RADIUS / 5 ** (1 / 3)
-NUCLEAR_BODY_SPACING = 3.0
+NUCLEAR_BODY_SPACING = 1.5
 CHROMATIN_DENSITY = 0.30
 
 ###
@@ -88,7 +88,7 @@ if include_lamina:
     lamina = nb.filter_points_in_cone(
         lamina,
         half_angle_conic_confinement,
-        0.10 * half_angle_conic_confinement,
+        0.25 * half_angle_conic_confinement,
     )
 
     print(
@@ -111,7 +111,7 @@ if include_nucleoli:
     nucleoli = nb.filter_points_in_cone(
         nucleoli,
         half_angle_conic_confinement,
-        0.10 * half_angle_conic_confinement,
+        0.25 * half_angle_conic_confinement,
     )
 
     print(
