@@ -1,5 +1,5 @@
 """
-Concatenate the MSD for all beads in each compartment across all replicas, 
+Concatenate the MSD for all beads in each compartment across all replicas,
 and save the average MSD per compartment. One single .h5 is generated with
 the average MSD per compartment for each condition.
 """
@@ -18,18 +18,20 @@ def read_sequence(filename):
     return sequence[:, 1].astype(str)
 
 
-OUTPUT_FOLDER = "/scratch/mm146/Polarization/3_IMR-90_hg38_fields-nb/4_analysis/msd/data"
+CHROMOSOME = 1
+FOLDER_NUM = 4 if CHROMOSOME == 1 else 5
+OUTPUT_FOLDER = f"/scratch/mm146/Polarization/{FOLDER_NUM}_IMR-90_hg38_chr{CHROMOSOME}/7_analysis/msd/data"
 NUM_REPLICAS = 32
 
 conditions = [
     "complete",
     "nucleolus",
-    "lamina",
-    "control",
+    # "lamina",
+    # "control",
 ]
 
 chr_sequence = read_sequence(
-    "../../1_inputs/chr1_subcompartments.txt"
+    F"../../1_inputs/chr{CHROMOSOME}_subcompartments.txt"
 )
 
 compartment_indices = {}
