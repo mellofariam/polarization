@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #SBATCH -J msd
-#SBATCH -o /scratch/mm146/Polarization/5_IMR-90_hg38_chr17/4_analysis/output/job.msd.%j.out
+#SBATCH -o /scratch/mm146/Polarization/output/job.msd.%j.out
 #SBATCH -n 4
 #SBATCH -t 24:00:00
 #SBATCH --account=ctbp-onuchic
@@ -14,6 +14,18 @@ conda activate work
 
 which python
 
+# remember to define condition with --export=condition=$condition when calling sbatch
 replica=${SLURM_ARRAY_TASK_ID}
 
-python compute-msd.py $condition $replica /scratch/mm146/Polarization/5_IMR-90_hg38_chr17/3_sampling /scratch/mm146/Polarization/5_IMR-90_hg38_chr17/4_analysis/msd/data
+chromosome="1"
+
+if [ "$chromosome" == "1" ]; then
+    chr_folder="/scratch/mm146/Polarization/4_IMR-90_hg38_chr1"
+elif [ "$chromosome" == "17" ]; then
+    chr_folder="/scratch/mm146/Polarization/5_IMR-90_hg38_chr17"
+else
+    echo "Invalid chromosome: $chromosome"
+    exit 1
+fi
+
+python compute-msd.py $condition $replica $chr_folder/3_sampling $chr_folder/4_analysis/msd/data

@@ -1,7 +1,7 @@
 #!/bin/bash
 
-#SBATCH -J polarization
-#SBATCH -o /scratch/mm146/Polarization/output/job.polarization.%j.out
+#SBATCH -J lamina.contact
+#SBATCH -o /scratch/mm146/Polarization/output/job.lamina-contact.%j.out
 #SBATCH -n 4
 #SBATCH -t 24:00:00
 #SBATCH --account=ctbp-onuchic
@@ -14,10 +14,12 @@ conda activate work
 
 which python
 
-# remember to define condition with --export=condition=$condition when calling sbatch
+# remember to define `condition`:
+# sbatch --export=condition=$condition sub_lamina-contact.sh
 replica=${SLURM_ARRAY_TASK_ID}
 
 chromosome="1"
+nuclear_body_treatment="beads"  # "fields" or "beads"
 
 if [ "$chromosome" == "1" ]; then
     chr_folder="/scratch/mm146/Polarization/4_IMR-90_hg38_chr1"
@@ -28,4 +30,9 @@ else
     exit 1
 fi
 
-python compute-polarization.py $condition $replica $chr_folder/6_sampling $chr_folder/7_analysis/polarization/data
+python compute-lamina-contact.py \
+    $condition \
+    $replica \
+    $chr_folder/6_sampling \
+    $chr_folder/7_analysis/lamina-contact/data \
+    $nuclear_body_treatment
