@@ -12,12 +12,6 @@ import numpy as np
 from chroma import structure
 from OpenMiChroM.CndbTools import cndbTools
 
-sys.path.append(
-    "/scratch/mm146/Polarization/polarization/2_simulations"
-)
-
-import nuclear_bodies as nb
-
 condition = sys.argv[1]
 replica = int(sys.argv[2])
 traj_folder = sys.argv[3]
@@ -85,15 +79,7 @@ indices = {
     "NN": get_pairs(is_N, is_N),
 }
 
-half_angle_conic_confinement = nb.calc_half_angle(
-    density=CHROMATIN_DENSITY,
-    nucleus_radius=NUCLEUS_RADIUS,
-    nucleolus_radius=NUCLEOLI_RADIUS,
-    num_chromatin_beads=num_beads,
-)
-max_distance = (
-    2 * NUCLEUS_RADIUS * np.sin(half_angle_conic_confinement)
-)
+max_distance = 2 * NUCLEUS_RADIUS
 print(
     f"Estimated maximum distance between beads: {max_distance:.2f}",
     flush=True,
