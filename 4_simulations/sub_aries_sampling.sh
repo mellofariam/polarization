@@ -10,15 +10,27 @@
 source /home/mm146/.conda/envs/work/bin/activate
 which python
 
-echo "Running sampling of the nucleus with chromosome 17."
+echo "Running sampling of the nucleus with chromosome 1."
 echo "Launching 8 jobs on different GPUs..."
 
 condition=$1
 i=${SLURM_ARRAY_TASK_ID}
 
+CHROMOSOME="1"
+
+if [ "$CHROMOSOME" == "1" ]; then
+    chr_folder="/work/cms16/mm146/Polarization/4_IMR-90_hg38_chr1"
+elif [ "$CHROMOSOME" == "17" ]; then
+    chr_folder="/work/cms16/mm146/Polarization/5_IMR-90_hg38_chr17"
+else
+    echo "Invalid chromosome: $CHROMOSOME"
+    exit 1
+fi
+
 SCRIPT_DIR="/home/mm146/Polarization/polarization/4_simulations/sim_sampling.py"
-OUTPUT_BASE="/work/cms16/mm146/Polarization/3_IMR-90_hg38_chr1/6_sampling"
-INPUT_BASE="/work/cms16/mm146/Polarization/3_IMR-90_hg38_chr1/5_assembly"
+
+INPUT_BASE="${chr_folder}/5_assembly"
+OUTPUT_BASE="${chr_folder}/6_sampling"
 
 mkdir -p $OUTPUT_BASE/$condition/output
 
