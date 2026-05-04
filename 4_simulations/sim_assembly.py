@@ -64,16 +64,19 @@ chromosomes = nb.fix_chromatin(
 print("zmax:", np.max(chromosomes[:, 2]))
 print("zmin:", np.min(chromosomes[:, 2]))
 
-lamina, lamina_spacing = nb.create_nuclear_body(
-    radius=NUCLEUS_RADIUS, target_spacing=NUCLEAR_BODY_SPACING
-)
-print(
-    "Lamina created with",
-    len(lamina),
-    "points and mean spacing",
-    lamina_spacing,
-    flush=True,
-)
+
+lamina = None
+if condition in ["complete", "lamina"]:
+    lamina, lamina_spacing = nb.create_nuclear_body(
+        radius=NUCLEUS_RADIUS, target_spacing=NUCLEAR_BODY_SPACING
+    )
+    print(
+        "Lamina created with",
+        len(lamina),
+        "points and mean spacing",
+        lamina_spacing,
+        flush=True,
+    )
 
 nucleoli, nucleoli_spacing = nb.create_nuclear_body(
     radius=NUCLEOLI_RADIUS,
@@ -102,8 +105,12 @@ positions, masses = nb.add_nuclear_bodies(
     lamina=lamina,
     nucleoli=nucleoli,
 )
-lamina_chains = [chromatin_chains[-1] + 1]
-nucleoli_chains = [lamina_chains[-1] + 1]
+if lamina is not None:
+    lamina_chains = [chromatin_chains[-1] + 1]
+    nucleoli_chains = [lamina_chains[-1] + 1]
+else:
+    nucleoli_chains = [chromatin_chains[-1] + 1]
+
 
 print("Min distance between nucleoli and chromatin:", flush=True)
 print(
