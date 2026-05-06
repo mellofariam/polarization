@@ -16,20 +16,21 @@ echo "Launching 8 jobs on different GPUs..."
 condition=$1
 i=${SLURM_ARRAY_TASK_ID}
 
+LAMINA="5"
 SCRIPT_DIR="/home/mm146/Polarization/polarization/5_simulations/sim_sampling.py"
-OUTPUT_BASE="/work/cms16/mm146/Polarization/3_IMR-90_hg38_chr1/8_sampling"
-INPUT_BASE="/work/cms16/mm146/Polarization/3_IMR-90_hg38_chr1/5_assembly"
+INPUT_BASE="/work/cms16/mm146/Polarization/4_IMR-90_hg38_chr1/5_assembly"
+OUTPUT_BASE="/work/cms16/mm146/Polarization/4_IMR-90_hg38_chr1/8_sampling"
 
-mkdir -p $OUTPUT_BASE/$condition/output
+mkdir -p $OUTPUT_BASE/$LAMINA/$condition/output
 
-export HIP_VISIBLE_DEVICES=0; srun -n 1 -o $OUTPUT_BASE/$condition/output/job.%J.out python $SCRIPT_DIR ${OUTPUT_BASE} $condition $(($i + 0)) ${INPUT_BASE} HIP &
-export HIP_VISIBLE_DEVICES=1; srun -n 1 -o $OUTPUT_BASE/$condition/output/job.%J.out python $SCRIPT_DIR ${OUTPUT_BASE} $condition $(($i + 1)) ${INPUT_BASE} HIP &
-export HIP_VISIBLE_DEVICES=2; srun -n 1 -o $OUTPUT_BASE/$condition/output/job.%J.out python $SCRIPT_DIR ${OUTPUT_BASE} $condition $(($i + 2)) ${INPUT_BASE} HIP &
-export HIP_VISIBLE_DEVICES=3; srun -n 1 -o $OUTPUT_BASE/$condition/output/job.%J.out python $SCRIPT_DIR ${OUTPUT_BASE} $condition $(($i + 3)) ${INPUT_BASE} HIP &
-export HIP_VISIBLE_DEVICES=4; srun -n 1 -o $OUTPUT_BASE/$condition/output/job.%J.out python $SCRIPT_DIR ${OUTPUT_BASE} $condition $(($i + 4)) ${INPUT_BASE} HIP &
-export HIP_VISIBLE_DEVICES=5; srun -n 1 -o $OUTPUT_BASE/$condition/output/job.%J.out python $SCRIPT_DIR ${OUTPUT_BASE} $condition $(($i + 5)) ${INPUT_BASE} HIP &
-export HIP_VISIBLE_DEVICES=6; srun -n 1 -o $OUTPUT_BASE/$condition/output/job.%J.out python $SCRIPT_DIR ${OUTPUT_BASE} $condition $(($i + 6)) ${INPUT_BASE} HIP &
-export HIP_VISIBLE_DEVICES=7; srun -n 1 -o $OUTPUT_BASE/$condition/output/job.%J.out python $SCRIPT_DIR ${OUTPUT_BASE} $condition $(($i + 7)) ${INPUT_BASE} HIP &
+export HIP_VISIBLE_DEVICES=0; srun -n 1 -o $OUTPUT_BASE/$LAMINA/$condition/output/job.%J.out python $SCRIPT_DIR ${OUTPUT_BASE} $condition $(($i + 0)) ${INPUT_BASE} ${LAMINA} HIP &
+export HIP_VISIBLE_DEVICES=1; srun -n 1 -o $OUTPUT_BASE/$LAMINA/$condition/output/job.%J.out python $SCRIPT_DIR ${OUTPUT_BASE} $condition $(($i + 1)) ${INPUT_BASE} ${LAMINA} HIP &
+export HIP_VISIBLE_DEVICES=2; srun -n 1 -o $OUTPUT_BASE/$LAMINA/$condition/output/job.%J.out python $SCRIPT_DIR ${OUTPUT_BASE} $condition $(($i + 2)) ${INPUT_BASE} ${LAMINA} HIP &
+export HIP_VISIBLE_DEVICES=3; srun -n 1 -o $OUTPUT_BASE/$LAMINA/$condition/output/job.%J.out python $SCRIPT_DIR ${OUTPUT_BASE} $condition $(($i + 3)) ${INPUT_BASE} ${LAMINA} HIP &
+export HIP_VISIBLE_DEVICES=4; srun -n 1 -o $OUTPUT_BASE/$LAMINA/$condition/output/job.%J.out python $SCRIPT_DIR ${OUTPUT_BASE} $condition $(($i + 4)) ${INPUT_BASE} ${LAMINA} HIP &
+export HIP_VISIBLE_DEVICES=5; srun -n 1 -o $OUTPUT_BASE/$LAMINA/$condition/output/job.%J.out python $SCRIPT_DIR ${OUTPUT_BASE} $condition $(($i + 5)) ${INPUT_BASE} ${LAMINA} HIP &
+export HIP_VISIBLE_DEVICES=6; srun -n 1 -o $OUTPUT_BASE/$LAMINA/$condition/output/job.%J.out python $SCRIPT_DIR ${OUTPUT_BASE} $condition $(($i + 6)) ${INPUT_BASE} ${LAMINA} HIP &
+export HIP_VISIBLE_DEVICES=7; srun -n 1 -o $OUTPUT_BASE/$LAMINA/$condition/output/job.%J.out python $SCRIPT_DIR ${OUTPUT_BASE} $condition $(($i + 7)) ${INPUT_BASE} ${LAMINA} HIP &
 
 echo "Job steps submitted..."
 sleep 1

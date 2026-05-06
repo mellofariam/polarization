@@ -20,20 +20,24 @@ output_base = sys.argv[1]
 condition = sys.argv[2]
 replicaID = int(sys.argv[3])
 input_base = sys.argv[4]
-platform = sys.argv[5] if len(sys.argv) > 5 else "CUDA"
+lamina_divide_by = sys.argv[5]
+platform = sys.argv[6] if len(sys.argv) > 6 else "CUDA"
 
-OUTPUT_FOLDER = os.path.join(output_base, condition, str(replicaID))
+OUTPUT_FOLDER = os.path.join(
+    output_base, lamina_divide_by, condition, str(replicaID)
+)
 os.makedirs(OUTPUT_FOLDER, exist_ok=True)
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 TYPES_TABLE = os.path.join(
-    SCRIPT_DIR, "../1_inputs/ff_nucleus-compartment-level-undivided.csv"
+    SCRIPT_DIR,
+    f"../1_inputs/ff_nucleus-compartment-level_divided-by-{lamina_divide_by}.csv",
 )
 
 ## Defining parameters
 NUCLEUS_RADIUS = 32.5
 NUCLEOLI_RADIUS = NUCLEUS_RADIUS / 5 ** (1 / 3)
-NUCLEAR_BODY_SPACING = 1.5
+NUCLEAR_BODY_SPACING = 1.0
 CHROMATIN_DENSITY = 0.30
 
 ###
