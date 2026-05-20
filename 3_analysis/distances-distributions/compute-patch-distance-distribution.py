@@ -10,12 +10,7 @@ import sys
 import h5py
 import numpy as np
 from OpenMiChroM.CndbTools import cndbTools
-
-sys.path.append(
-    "/scratch/mm146/Polarization/polarization/2_simulations"
-)
-
-import nuclear_bodies as nb
+from chroma import structure
 
 condition = sys.argv[1]
 replica = int(sys.argv[2])
@@ -108,19 +103,7 @@ print("", flush=True)
 print("Extracting positions...", flush=True)
 positions = traj.xyz(frames=range(0, 10_000, 1))
 
-half_angle_conic_confinement = nb.calc_half_angle(
-    density=CHROMATIN_DENSITY,
-    nucleus_radius=NUCLEUS_RADIUS,
-    nucleolus_radius=NUCLEOLI_RADIUS,
-    num_chromatin_beads=num_beads,
-)
-max_distance = (
-    2 * NUCLEUS_RADIUS * np.sin(half_angle_conic_confinement)
-)
-print(
-    f"Estimated maximum distance between beads: {max_distance:.2f}",
-    flush=True,
-)
+max_distance = (2 * NUCLEUS_RADIUS)
 
 distance_bins = np.linspace(0, max_distance, 101)
 
@@ -159,10 +142,8 @@ with h5py.File(
             :, patch2["start"] : patch2["end"] + 1, :
         ]
 
-        distances = np.linalg.norm(
-            patch1_positions[:, :, None, :]
-            - patch2_positions[:, None, :, :],
-            axis=-1,
+        distances = structure.compute_distances_trajectory(
+            patch1_positions, patch2_positions
         )
         min_distances = np.min(distances, axis=(1, 2))
 
