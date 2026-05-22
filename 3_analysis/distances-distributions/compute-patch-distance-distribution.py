@@ -16,8 +16,10 @@ condition = sys.argv[1]
 replica = int(sys.argv[2])
 traj_folder = sys.argv[3]
 output_folder = sys.argv[4]
+tag = sys.argv[5]
 
-selected_patches = sorted(set(map(int, sys.argv[5:])))
+selected_patches = sorted(set(map(int, sys.argv[6:])))
+
 
 NUCLEUS_RADIUS = 32.5
 NUCLEOLI_RADIUS = (NUCLEUS_RADIUS) / 5 ** (1 / 3)
@@ -103,7 +105,8 @@ print("", flush=True)
 print("Extracting positions...", flush=True)
 positions = traj.xyz(frames=range(0, 10_000, 1))
 
-max_distance = (2 * NUCLEUS_RADIUS)
+max_distance = 10
+# max_distance = (2 * NUCLEUS_RADIUS)
 
 distance_bins = np.linspace(0, max_distance, 101)
 
@@ -112,7 +115,7 @@ with h5py.File(
     os.path.join(
         output_folder,
         condition,
-        f"patch-distance-histogram-replica{replica}.h5",
+        f"patch-distance-histogram-replica{replica}-{tag}.h5",
     ),
     "w",
 ) as saving_file:
