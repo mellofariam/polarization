@@ -28,4 +28,4 @@ else
     exit 1
 fi
 
-python compute-msd.py $condition $replica $chr_folder/3_sampling $chr_folder/4_analysis/msd/data
+python compute-msd.py $condition $replica $chr_folder/6_sampling $chr_folder/7_analysis/msd/data
