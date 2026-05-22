@@ -58,9 +58,12 @@ compartment_indices["B"] = reduce(
 
 with h5py.File(
     os.path.join(OUTPUT_FOLDER, "msd-average-per-compartment.h5"), "w"
-) as f_out:
+) as f_out, h5py.File(
+    os.path.join(OUTPUT_FOLDER, "msd-std-per-compartment.h5"), "w"
+) as f_std:
     for condition in conditions:
         condition_group = f_out.create_group(condition)
+        std_group = f_std.create_group(condition)
 
         print(
             f"Concatenating the MSD for condition: {condition}",
@@ -93,6 +96,16 @@ with h5py.File(
             condition_group.create_dataset(
                 label,
                 data=msd_compartment,
+            )
+
+            std_group.create_dataset(
+                label,
+                data=(
+                    msd_all_replicas[:, :, indices]
+                    .transpose(1, 0, 2)
+                    .reshape(10000, -1)
+                    .std(axis=1)
+                ),
             )
 
 print("Done!", flush=True)
