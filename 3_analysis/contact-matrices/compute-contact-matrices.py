@@ -38,7 +38,7 @@ is_B = chr_sequence_compartment == "B"
 is_N = chr_sequence_compartment == "N"
 
 
-def remove_n_neighbors(matrix, diagonals_to_delete=range(-2, 2)):
+def remove_n_neighbors(matrix, diagonals_to_delete=[-2, -1, 0, 1, 2]):
     for k in diagonals_to_delete:
         i = np.arange(matrix.shape[0] - abs(k))
         if k >= 0:
@@ -62,8 +62,8 @@ def get_patch_contacts(matrix, starts, ends):
         for j in range(i + 1, m):
             mx = -np.inf
 
-            for r in range(starts[i], ends[i]):
-                for c in range(starts[j], ends[j]):
+            for r in range(starts[i], ends[i] + 1):
+                for c in range(starts[j], ends[j] + 1):
                     if matrix[r, c] > mx:
                         mx = matrix[r, c]
 
@@ -114,13 +114,13 @@ for frame in range(positions.shape[0]):
         ends=df_patches["end"].values,
     )
 
-    num_patch_contacts[frame, :, 0] = frame_contacts[
+    num_patch_contacts[frame, :, 0] = frame_patch_contacts[
         :, df_patches["compartment"] == "A"
     ].sum(axis=1)
-    num_patch_contacts[frame, :, 1] = frame_contacts[
+    num_patch_contacts[frame, :, 1] = frame_patch_contacts[
         :, df_patches["compartment"] == "B"
     ].sum(axis=1)
-    num_patch_contacts[frame, :, 2] = frame_contacts[
+    num_patch_contacts[frame, :, 2] = frame_patch_contacts[
         :, df_patches["compartment"] == "NA"
     ].sum(axis=1)
 
