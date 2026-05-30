@@ -12,12 +12,31 @@ import pandas
 from chroma import energy, structure
 from OpenMiChroM.CndbTools import cndbTools
 
-traj_folder = sys.argv[1]
-condition = sys.argv[2]
-replica = int(sys.argv[3])
+condition = sys.argv[1]
+replica = int(sys.argv[2])
+traj_folder = sys.argv[3]
 output_folder = sys.argv[4]
 
 start = time.perf_counter()
+
+if condition not in [
+    "complete",
+    "nucleolus",
+    "lamina",
+    "control",
+]:
+    raise ValueError(
+        f"Invalid condition: {condition}. Options are: 'complete', 'nucleolus', 'lamina', and 'control'."
+    )
+
+print(
+    "Computing contacts data for",
+    flush=True,
+)
+print(f"\tcondition: {condition}", flush=True)
+print(f"\treplica: {replica}", flush=True)
+print("", flush=True)
+
 
 traj = cndbTools()
 traj.load(
@@ -25,7 +44,7 @@ traj.load(
         traj_folder, condition, str(replica), "nucleus_0.cndb"
     )
 )
-positions = traj.xyz(frames=range(10_000))
+positions = traj.xyz(frames=range(0, 10_000, 1))
 
 num_frames = positions.shape[0]
 num_beads = positions.shape[1]
@@ -90,6 +109,9 @@ num_patch_contacts = np.zeros(
 )
 
 for frame in range(positions.shape[0]):
+    if frame % 100 == 0:
+        print(f"Computing frame {frame}...", flush=True)
+
     frame_probabilities = energy._contact_switch(
         structure.compute_distances(
             positions[frame], positions[frame]
@@ -126,6 +148,8 @@ for frame in range(positions.shape[0]):
 
 contact_probability /= num_frames
 
+print("Saving files...", flush=True)
+
 os.makedirs(os.path.join(output_folder, condition), exist_ok=True)
 
 out_path = os.path.join(
@@ -136,7 +160,9 @@ out_path = os.path.join(
 with h5py.File(out_path, "w") as f:
     f.create_dataset("contact_probability", data=contact_probability)
     f.create_dataset("num_contacts_per_bead", data=num_contacts)
-    f.create_dataset("num_contacts_per_patch", data=num_patch_contacts)
+    f.create_dataset(
+        "num_contacts_per_patch", data=num_patch_contacts
+    )
 
 end = time.perf_counter()
 print(
