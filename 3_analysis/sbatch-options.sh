@@ -1,3 +1,7 @@
+for condition in complete nucleolus; do
+    sbatch --export=condition=$condition sub_contacts.sh
+done
+
 for condition in control complete lamina nucleolus; do
     sbatch --export=condition=$condition sub_distance-histogram.sh
 done
@@ -37,6 +41,10 @@ for condition in control complete lamina nucleolus; do
 done
 for condition in complete nucleolus; do
     sbatch --export=condition=$condition sub_polarization.sh
+done
+
+for condition in complete nucleolus; do
+    sbatch --export=condition=$condition sub_sasa.sh
 done
 
 
