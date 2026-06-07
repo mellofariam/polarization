@@ -17,6 +17,8 @@ replica = int(sys.argv[2])
 traj_folder = sys.argv[3]
 output_folder = sys.argv[4]
 
+CONTACT_THRESHOLD = 0.90
+
 start = time.perf_counter()
 
 if condition not in [
@@ -121,7 +123,7 @@ for frame in range(positions.shape[0]):
     # contact probability matrix
     contact_probability += frame_probabilities
 
-    frame_contacts = (frame_probabilities >= 0.5).astype(int)
+    frame_contacts = (frame_probabilities >= CONTACT_THRESHOLD).astype(int)
     frame_contacts = remove_n_neighbors(frame_contacts)
 
     # number of contacts
