@@ -7,7 +7,7 @@
 #SBATCH --account=ctbp-onuchic
 #SBATCH --partition=ctbp-onuchic,ctbp-common,commons
 #SBATCH --mem=16GB
-#SBATCH --array=1-32
+#SBATCH --array=1-96
 
 source /home/mm146/.conda/envs/work/bin/activate
 conda activate work
