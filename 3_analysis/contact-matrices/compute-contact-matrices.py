@@ -1,4 +1,4 @@
-"""Load trajectory for chr1 and compute contact probability."""
+"""Load CNDB trajectory and compute contact probability."""
 
 import datetime
 import os
@@ -17,7 +17,7 @@ replica = int(sys.argv[2])
 traj_folder = sys.argv[3]
 output_folder = sys.argv[4]
 
-CONTACT_THRESHOLD = 0.90
+CONTACT_THRESHOLD = float(sys.argv[5])
 
 start = time.perf_counter()
 
