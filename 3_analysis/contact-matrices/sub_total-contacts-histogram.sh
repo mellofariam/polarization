@@ -1,12 +1,12 @@
 #!/bin/bash
 
-#SBATCH -J contacts
-#SBATCH -o /scratch/mm146/Polarization/output/job.contacts.%j.out
+#SBATCH -J ctt-hist
+#SBATCH -o /scratch/mm146/Polarization/output/job.ctt-hist.%j.out
 #SBATCH -n 4
 #SBATCH -t 24:00:00
 #SBATCH --account=ctbp-onuchic
 #SBATCH --partition=ctbp-onuchic,ctbp-common,commons
-#SBATCH --mem=16GB
+#SBATCH --mem=64GB
 #SBATCH --array=1-96
 
 source /home/mm146/.conda/envs/work/bin/activate
@@ -26,9 +26,7 @@ else
     exit 1
 fi
 
-python compute-contact-matrices.py \
+python compute-total-contacts-histogram.py \
     $condition \
     $replica \
-    $chr_folder/6_sampling \
-    $chr_folder/7_analysis/contacts/data-0.50 \
     0.50
