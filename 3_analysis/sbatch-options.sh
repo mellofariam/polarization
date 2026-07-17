@@ -1,5 +1,17 @@
 for condition in complete nucleolus; do
+    sbatch --export=condition=$condition sub_cluster-size.sh
+done
+
+for condition in complete nucleolus; do
     sbatch --export=condition=$condition sub_contacts.sh
+done
+
+for condition in complete nucleolus; do
+    sbatch --export=condition=$condition sub_timescales.sh
+done
+
+for condition in complete nucleolus; do
+    sbatch --export=condition=$condition sub_total-contacts-histogram.sh
 done
 
 for condition in control complete lamina nucleolus; do
@@ -27,6 +39,13 @@ for condition in complete nucleolus; do
     sbatch --export=condition=$condition sub_energies.sh
 done
 
+for condition in complete nucleolus; do
+    sbatch --export=condition=$condition sub_lamina-contact.sh
+done
+
+for condition in complete nucleolus; do
+    sbatch --export=condition=$condition sub_localization.sh
+done
 
 for condition in control complete lamina nucleolus; do
     sbatch --export=condition=$condition sub_msd.sh
@@ -48,6 +67,3 @@ for condition in complete nucleolus; do
 done
 
 
-for condition in complete nucleolus; do
-    sbatch --export=condition=$condition sub_lamina-contact.sh
-done
