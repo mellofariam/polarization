@@ -21,7 +21,7 @@ def read_sequence(filename):
 CHROMOSOME = 1
 FOLDER_NUM = 4 if CHROMOSOME == 1 else 5
 OUTPUT_FOLDER = f"/scratch/mm146/Polarization/{FOLDER_NUM}_IMR-90_hg38_chr{CHROMOSOME}/7_analysis/msd/data"
-NUM_REPLICAS = 32
+NUM_REPLICAS = 96
 
 conditions = [
     "complete",
